@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import Layout from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
@@ -38,21 +37,20 @@ import {
   Star,
   Clock,
   AlertTriangle,
-  Buildings,
-  Road,
+  Building,
+  Landmark,
   Trash2,
   Lightbulb
 } from "lucide-react";
 import { toast } from "sonner";
 
-// Mock data for forum posts
 const forumPosts = [
   {
     id: "post-1",
     title: "Water supply issues in Malad West",
     author: "Rajesh Sharma",
     content: "There has been irregular water supply in Malad West for the past week. Is anyone else facing similar issues?",
-    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 4).toISOString(), // 4 hours ago
+    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 4).toISOString(),
     likes: 24,
     comments: 15,
     category: "Water Supply"
@@ -62,7 +60,7 @@ const forumPosts = [
     title: "Need traffic management at Andheri Junction",
     author: "Priya Patel",
     content: "The traffic situation at Andheri Junction is getting worse every day. Can we request the authorities to place traffic police during peak hours?",
-    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 12).toISOString(), // 12 hours ago
+    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 12).toISOString(),
     likes: 42,
     comments: 28,
     category: "Traffic"
@@ -72,7 +70,7 @@ const forumPosts = [
     title: "Appreciation for the new waste collection system",
     author: "Mohammed Khan",
     content: "I want to appreciate the new waste collection system implemented in our area. It's much more efficient and timely.",
-    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(), // 1 day ago
+    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(),
     likes: 56,
     comments: 8,
     category: "Sanitation"
@@ -82,14 +80,13 @@ const forumPosts = [
     title: "Request for a new playground in Thane East",
     author: "Anita Desai",
     content: "Our community needs a playground for children. There's vacant land near the municipal office that could be developed.",
-    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 36).toISOString(), // 36 hours ago
+    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 36).toISOString(),
     likes: 78,
     comments: 32,
     category: "Infrastructure"
   }
 ];
 
-// Mock data for issue reports
 const issueReports = [
   {
     id: "issue-1",
@@ -97,7 +94,7 @@ const issueReports = [
     category: "Roads",
     status: "In Progress",
     location: "SV Road, near Goregaon Station",
-    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 48).toISOString(), // 2 days ago
+    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 48).toISOString(),
     upvotes: 45,
     hasImage: true
   },
@@ -107,7 +104,7 @@ const issueReports = [
     category: "Electricity",
     status: "Pending",
     location: "Lane 4, Bandra West",
-    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 32).toISOString(), // 32 hours ago
+    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 32).toISOString(),
     upvotes: 12,
     hasImage: true
   },
@@ -117,7 +114,7 @@ const issueReports = [
     category: "Sanitation",
     status: "Resolved",
     location: "Behind City Mall, Andheri East",
-    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 72).toISOString(), // 3 days ago
+    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 72).toISOString(),
     upvotes: 28,
     hasImage: true
   },
@@ -127,13 +124,12 @@ const issueReports = [
     category: "Infrastructure",
     status: "Assigned",
     location: "MG Road, Fort Area",
-    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(), // 1 day ago
+    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(),
     upvotes: 19,
     hasImage: false
   }
 ];
 
-// Mock data for service ratings
 const serviceRatings = [
   {
     id: "service-1",
@@ -325,13 +321,13 @@ const CommunityEngagement = () => {
   const getIssueCategoryIcon = (category: string) => {
     switch (category.toLowerCase()) {
       case "roads":
-        return <Road className="h-4 w-4" />;
+        return <Landmark className="h-4 w-4" />;
       case "electricity":
         return <Lightbulb className="h-4 w-4" />;
       case "sanitation":
         return <Trash2 className="h-4 w-4" />;
       case "infrastructure":
-        return <Buildings className="h-4 w-4" />;
+        return <Building className="h-4 w-4" />;
       default:
         return <AlertTriangle className="h-4 w-4" />;
     }
@@ -848,7 +844,6 @@ const CommunityEngagement = () => {
   );
 };
 
-// Simple Label component to match the form style
 const Label = ({ htmlFor, children }: { htmlFor: string, children: React.ReactNode }) => (
   <label htmlFor={htmlFor} className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
     {children}
