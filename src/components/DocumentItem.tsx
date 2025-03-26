@@ -13,6 +13,7 @@ interface DocumentItemProps {
   previewUrl?: string;
   className?: string;
   onPreview?: () => void;
+  onDownload?: () => void;
 }
 
 const DocumentItem = ({
@@ -23,7 +24,8 @@ const DocumentItem = ({
   verificationStatus,
   previewUrl,
   className,
-  onPreview
+  onPreview,
+  onDownload
 }: DocumentItemProps) => {
   return (
     <div 
@@ -62,7 +64,7 @@ const DocumentItem = ({
           <Eye className="mr-2 h-4 w-4" />
           View
         </Button>
-        <Button variant="outline" size="sm">
+        <Button variant="outline" size="sm" onClick={onDownload}>
           <Download className="mr-2 h-4 w-4" />
           Download
         </Button>
