@@ -39,7 +39,8 @@ import {
   Loader2,
   XCircle,
   User,
-  UploadCloud
+  UploadCloud,
+  Bell
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";

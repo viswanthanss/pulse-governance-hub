@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import Layout from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
@@ -31,8 +30,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { CheckCircle, LockKeyhole, Fingerprint, Shield, UserCog, Key, Scan, FileText, AlertTriangle, Smartphone, UserCheck, Database, CheckCheck } from "lucide-react";
+import { CheckCircle, LockKeyhole, Fingerprint, Shield, UserCog, Key, Scan, FileText, AlertTriangle, Smartphone, UserCheck, Database, CheckCheck, Clock } from "lucide-react";
 
 // Mock activity data
 const activityData = [
@@ -728,3 +728,4 @@ const SecureIdentity = () => {
 };
 
 export default SecureIdentity;
+
