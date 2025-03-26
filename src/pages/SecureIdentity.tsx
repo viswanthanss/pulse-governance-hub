@@ -3,72 +3,155 @@ import { useState } from "react";
 import Layout from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { 
+  Card, 
+  CardContent, 
+  CardDescription, 
+  CardFooter, 
+  CardHeader, 
+  CardTitle 
+} from "@/components/ui/card";
+import { 
+  Dialog, 
+  DialogContent, 
+  DialogDescription, 
+  DialogFooter, 
+  DialogHeader, 
+  DialogTitle, 
+  DialogTrigger 
+} from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@/components/ui/tabs";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import {
-  ShieldCheck,
-  Lock,
-  Key,
-  Fingerprint,
-  Eye,
-  EyeOff,
-  Smartphone,
-  Mail,
-  User,
-  Check,
-  ChevronRight,
-  Share2,
-  Copy
-} from "lucide-react";
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { toast } from "sonner";
+import { CheckCircle, LockKeyhole, Fingerprint, Shield, UserCog, Key, Scan, FileText, AlertTriangle, Smartphone, UserCheck, Database, CheckCheck } from "lucide-react";
+
+// Mock activity data
+const activityData = [
+  {
+    id: "act1",
+    action: "Login",
+    device: "Mobile App - iPhone 13",
+    location: "Pune, Maharashtra",
+    time: "Today, 10:32 AM"
+  },
+  {
+    id: "act2",
+    action: "Document Access",
+    device: "Web Browser - Chrome",
+    location: "Mumbai, Maharashtra",
+    time: "Yesterday, 4:15 PM"
+  },
+  {
+    id: "act3",
+    action: "Profile Update",
+    device: "Mobile App - iPhone 13",
+    location: "Pune, Maharashtra",
+    time: "Jun 10, 2023, 2:45 PM"
+  },
+  {
+    id: "act4",
+    action: "Document Upload",
+    device: "Web Browser - Chrome",
+    location: "Mumbai, Maharashtra",
+    time: "Jun 8, 2023, 11:20 AM"
+  }
+];
+
+// Mock documents data
+const documentsData = [
+  {
+    id: "doc1",
+    name: "Aadhar Card",
+    status: "Verified",
+    lastAccessed: "Jun 10, 2023"
+  },
+  {
+    id: "doc2",
+    name: "PAN Card",
+    status: "Verified",
+    lastAccessed: "May 25, 2023"
+  },
+  {
+    id: "doc3",
+    name: "Voter ID",
+    status: "Pending Verification",
+    lastAccessed: "Jun 5, 2023"
+  },
+  {
+    id: "doc4",
+    name: "Driving License",
+    status: "Verified",
+    lastAccessed: "Apr 18, 2023"
+  }
+];
 
 const SecureIdentity = () => {
-  const [showPassword, setShowPassword] = useState(false);
-  const [loginMethod, setLoginMethod] = useState("password");
+  const [activeTab, setActiveTab] = useState("profile");
   const [authDialogOpen, setAuthDialogOpen] = useState(false);
-  const [showQRCode, setShowQRCode] = useState(false);
+  const [mfaDialogOpen, setMfaDialogOpen] = useState(false);
+  const [biometricDialogOpen, setBiometricDialogOpen] = useState(false);
+  const [mfaEnabled, setMfaEnabled] = useState(true);
+  const [bioAuthEnabled, setBioAuthEnabled] = useState(false);
+  const [passwordDialogOpen, setPasswordDialogOpen] = useState(false);
   
-  const handleLogin = (e: React.FormEvent) => {
-    e.preventDefault();
-    toast.success("Login successful", {
-      description: "You have been securely logged in",
+  const handleMfaToggle = () => {
+    setMfaDialogOpen(true);
+  };
+  
+  const handleBiometricToggle = () => {
+    setBiometricDialogOpen(true);
+  };
+  
+  const confirmMfaToggle = () => {
+    setMfaEnabled(!mfaEnabled);
+    setMfaDialogOpen(false);
+    toast.success(
+      mfaEnabled 
+        ? "Two-factor authentication disabled" 
+        : "Two-factor authentication enabled",
+      {
+        description: mfaEnabled 
+          ? "Your account is now protected with single-factor authentication only" 
+          : "Your account is now protected with an additional layer of security"
+      }
+    );
+  };
+  
+  const confirmBiometricToggle = () => {
+    setBioAuthEnabled(!bioAuthEnabled);
+    setBiometricDialogOpen(false);
+    toast.success(
+      bioAuthEnabled 
+        ? "Biometric authentication disabled" 
+        : "Biometric authentication enabled",
+      {
+        description: bioAuthEnabled 
+          ? "You will now authenticate using password and OTP only" 
+          : "You can now use your fingerprint or face to authenticate"
+      }
+    );
+  };
+  
+  const handlePasswordChange = () => {
+    toast.success("Password updated successfully", {
+      description: "Your password has been changed and a confirmation email has been sent"
     });
-    
-    // In a real app, this would authenticate the user
+    setPasswordDialogOpen(false);
+  };
+  
+  const handleLogoutEverywhere = () => {
     setAuthDialogOpen(false);
-  };
-  
-  const handleShare = () => {
-    toast.success("Share link created", {
-      description: "Secure document share link has been created and copied to clipboard",
-    });
-  };
-  
-  const handleCopy = () => {
-    toast.success("Copied to clipboard", {
-      description: "Document ID has been copied to clipboard",
+    toast.success("Logged out from all devices", {
+      description: "You have been securely logged out from all other devices"
     });
   };
   
@@ -78,554 +161,408 @@ const SecureIdentity = () => {
         <div className="mb-8">
           <h1 className="text-3xl font-bold tracking-tight">Secure Digital Identity</h1>
           <p className="text-muted-foreground">
-            Encrypted login for seamless authentication and secure document storage
+            Manage your secure digital identity and authentication preferences
           </p>
         </div>
         
-        <Tabs defaultValue="authentication" className="w-full">
+        <Tabs defaultValue={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full max-w-md grid-cols-3">
-            <TabsTrigger value="authentication">Authentication</TabsTrigger>
-            <TabsTrigger value="documents">Secure Documents</TabsTrigger>
-            <TabsTrigger value="account">Account Security</TabsTrigger>
+            <TabsTrigger value="profile">Profile</TabsTrigger>
+            <TabsTrigger value="security">Security</TabsTrigger>
+            <TabsTrigger value="activity">Activity</TabsTrigger>
           </TabsList>
           
-          <TabsContent value="authentication" className="mt-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Secure Authentication</CardTitle>
-                <CardDescription>
-                  Multiple secure ways to access your government services
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="grid gap-6">
-                  <div className="rounded-lg border p-6">
-                    <h3 className="mb-6 text-lg font-medium">Login Options</h3>
-                    <div className="grid gap-4 sm:grid-cols-3">
-                      <Card className="cursor-pointer transition-colors hover:bg-muted/50" onClick={() => setLoginMethod("password")}>
-                        <CardContent className="flex flex-col items-center gap-2 p-6">
-                          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
-                            <Lock className="h-6 w-6 text-primary" />
-                          </div>
-                          <h4 className="text-center font-medium">Password</h4>
-                          <p className="text-center text-xs text-muted-foreground">
-                            Login with your secure password
-                          </p>
-                          {loginMethod === "password" && (
-                            <Check className="absolute right-2 top-2 h-4 w-4 text-primary" />
-                          )}
-                        </CardContent>
-                      </Card>
-                      
-                      <Card className="cursor-pointer transition-colors hover:bg-muted/50" onClick={() => setLoginMethod("otp")}>
-                        <CardContent className="flex flex-col items-center gap-2 p-6">
-                          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
-                            <Key className="h-6 w-6 text-primary" />
-                          </div>
-                          <h4 className="text-center font-medium">OTP</h4>
-                          <p className="text-center text-xs text-muted-foreground">
-                            Login with one-time password
-                          </p>
-                          {loginMethod === "otp" && (
-                            <Check className="absolute right-2 top-2 h-4 w-4 text-primary" />
-                          )}
-                        </CardContent>
-                      </Card>
-                      
-                      <Card className="cursor-pointer transition-colors hover:bg-muted/50" onClick={() => setLoginMethod("biometric")}>
-                        <CardContent className="flex flex-col items-center gap-2 p-6">
-                          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
-                            <Fingerprint className="h-6 w-6 text-primary" />
-                          </div>
-                          <h4 className="text-center font-medium">Biometric</h4>
-                          <p className="text-center text-xs text-muted-foreground">
-                            Login with fingerprint or face ID
-                          </p>
-                          {loginMethod === "biometric" && (
-                            <Check className="absolute right-2 top-2 h-4 w-4 text-primary" />
-                          )}
-                        </CardContent>
-                      </Card>
-                    </div>
-                    
-                    <div className="mt-6 grid place-items-center">
-                      <Dialog open={authDialogOpen} onOpenChange={setAuthDialogOpen}>
-                        <DialogTrigger asChild>
-                          <Button className="w-full max-w-md">
-                            <ShieldCheck className="mr-2 h-4 w-4" />
-                            Secure Login
-                          </Button>
-                        </DialogTrigger>
-                        <DialogContent>
-                          <DialogHeader>
-                            <DialogTitle>Secure Authentication</DialogTitle>
-                            <DialogDescription>
-                              {loginMethod === "password" 
-                                ? "Enter your credentials to login securely" 
-                                : loginMethod === "otp" 
-                                  ? "We'll send a one-time code to your registered mobile number" 
-                                  : "Use your device's biometric authentication"}
-                            </DialogDescription>
-                          </DialogHeader>
-                          
-                          {loginMethod === "password" && (
-                            <form onSubmit={handleLogin} className="space-y-4">
-                              <div className="space-y-2">
-                                <label className="text-sm font-medium">User ID / Aadhaar Number</label>
-                                <Input placeholder="Enter your ID" />
-                              </div>
-                              <div className="space-y-2">
-                                <label className="text-sm font-medium">Password</label>
-                                <div className="relative">
-                                  <Input 
-                                    type={showPassword ? "text" : "password"} 
-                                    placeholder="Enter your password" 
-                                  />
-                                  <button 
-                                    type="button"
-                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground"
-                                    onClick={() => setShowPassword(!showPassword)}
-                                  >
-                                    {showPassword ? (
-                                      <EyeOff className="h-4 w-4" />
-                                    ) : (
-                                      <Eye className="h-4 w-4" />
-                                    )}
-                                  </button>
-                                </div>
-                              </div>
-                              <DialogFooter className="mt-4">
-                                <Button type="submit" className="w-full">Login Securely</Button>
-                              </DialogFooter>
-                            </form>
-                          )}
-                          
-                          {loginMethod === "otp" && (
-                            <form onSubmit={handleLogin} className="space-y-4">
-                              <div className="space-y-2">
-                                <label className="text-sm font-medium">Mobile Number</label>
-                                <div className="flex gap-3">
-                                  <Input placeholder="Enter registered mobile number" />
-                                  <Button type="button" variant="outline">
-                                    Send OTP
-                                  </Button>
-                                </div>
-                              </div>
-                              <div className="space-y-2">
-                                <label className="text-sm font-medium">Enter OTP</label>
-                                <Input placeholder="Enter 6-digit OTP" maxLength={6} />
-                              </div>
-                              <DialogFooter className="mt-4">
-                                <Button type="submit" className="w-full">Verify & Login</Button>
-                              </DialogFooter>
-                            </form>
-                          )}
-                          
-                          {loginMethod === "biometric" && (
-                            <div className="space-y-4 py-4">
-                              <div className="grid place-items-center">
-                                <div className="flex h-24 w-24 items-center justify-center rounded-full bg-primary/10">
-                                  <Fingerprint className="h-14 w-14 text-primary" />
-                                </div>
-                                <p className="mt-4 text-center text-sm">
-                                  Place your finger on the sensor or use Face ID to authenticate
-                                </p>
-                              </div>
-                              <DialogFooter className="mt-4">
-                                <Button className="w-full" onClick={handleLogin}>
-                                  Authenticate
-                                </Button>
-                              </DialogFooter>
-                            </div>
-                          )}
-                        </DialogContent>
-                      </Dialog>
+          <TabsContent value="profile" className="mt-6">
+            <div className="grid gap-6 md:grid-cols-2">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Personal Information</CardTitle>
+                  <CardDescription>
+                    Manage your personal details and contact information
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="fullName">Full Name</Label>
+                    <Input id="fullName" value="Rahul Sharma" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="email">Email Address</Label>
+                    <Input id="email" value="rahul.sharma@example.com" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="phone">Phone Number</Label>
+                    <Input id="phone" value="+91 98765 43210" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="address">Address</Label>
+                    <Input id="address" value="123 Main Street, Pune, Maharashtra" />
+                  </div>
+                </CardContent>
+                <CardFooter>
+                  <Button onClick={() => toast.success("Profile updated successfully")}>
+                    Save Changes
+                  </Button>
+                </CardFooter>
+              </Card>
+              
+              <Card>
+                <CardHeader>
+                  <CardTitle>Digital Identity Verification</CardTitle>
+                  <CardDescription>
+                    Your verified digital identity enables secure access to government services
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <div className="rounded-lg border bg-card p-4">
+                    <div className="flex items-center gap-3">
+                      <div className="rounded-full bg-green-100 p-2">
+                        <CheckCircle className="h-6 w-6 text-green-600" />
+                      </div>
+                      <div>
+                        <h3 className="font-medium">Identity Verified</h3>
+                        <p className="text-sm text-muted-foreground">
+                          Your identity has been verified through Aadhaar authentication
+                        </p>
+                      </div>
                     </div>
                   </div>
                   
-                  <div className="grid gap-6 md:grid-cols-2">
-                    <div className="rounded-lg border bg-muted/40 p-6">
-                      <ShieldCheck className="mb-4 h-8 w-8 text-primary" />
-                      <h3 className="mb-2 text-lg font-medium">Blockchain Verification</h3>
-                      <p className="mb-4 text-sm text-muted-foreground">
-                        Your identity and documents are secured using blockchain technology, ensuring tamper-proof verification and authentication.
-                      </p>
-                      <div className="space-y-3 text-sm">
-                        <div className="flex items-center gap-2">
-                          <Check className="h-4 w-4 text-green-500" />
-                          <span>Immutable record of all verification activities</span>
+                  <div className="space-y-4">
+                    <h3 className="font-medium">Linked Accounts</h3>
+                    
+                    <div className="flex items-center justify-between rounded-lg border p-3">
+                      <div className="flex items-center gap-3">
+                        <div className="rounded-full bg-primary/10 p-2">
+                          <Fingerprint className="h-5 w-5 text-primary" />
                         </div>
-                        <div className="flex items-center gap-2">
-                          <Check className="h-4 w-4 text-green-500" />
-                          <span>Cryptographically secured identity information</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Check className="h-4 w-4 text-green-500" />
-                          <span>Decentralized storage prevents single point of failure</span>
+                        <div>
+                          <p className="font-medium">Aadhaar</p>
+                          <p className="text-xs text-muted-foreground">
+                            Linked on May 10, 2023
+                          </p>
                         </div>
                       </div>
+                      <Badge className="bg-green-100 text-green-800">Verified</Badge>
                     </div>
                     
-                    <div className="rounded-lg border bg-muted/40 p-6">
-                      <Lock className="mb-4 h-8 w-8 text-primary" />
-                      <h3 className="mb-2 text-lg font-medium">End-to-End Encryption</h3>
-                      <p className="mb-4 text-sm text-muted-foreground">
-                        All your data and communications are protected with military-grade encryption, ensuring your information remains private and secure.
-                      </p>
-                      <div className="space-y-3 text-sm">
-                        <div className="flex items-center gap-2">
-                          <Check className="h-4 w-4 text-green-500" />
-                          <span>AES-256 encryption for all stored documents</span>
+                    <div className="flex items-center justify-between rounded-lg border p-3">
+                      <div className="flex items-center gap-3">
+                        <div className="rounded-full bg-primary/10 p-2">
+                          <FileText className="h-5 w-5 text-primary" />
                         </div>
-                        <div className="flex items-center gap-2">
-                          <Check className="h-4 w-4 text-green-500" />
-                          <span>Secure transmission with TLS 1.3 protocol</span>
+                        <div>
+                          <p className="font-medium">PAN</p>
+                          <p className="text-xs text-muted-foreground">
+                            Linked on June 2, 2023
+                          </p>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <Check className="h-4 w-4 text-green-500" />
-                          <span>Zero-knowledge architecture for maximum privacy</span>
-                        </div>
+                      </div>
+                      <Badge className="bg-green-100 text-green-800">Verified</Badge>
+                    </div>
+                  </div>
+                </CardContent>
+                <CardFooter>
+                  <Button variant="outline">
+                    Link Additional Documents
+                  </Button>
+                </CardFooter>
+              </Card>
+            </div>
+          </TabsContent>
+          
+          <TabsContent value="security" className="mt-6">
+            <div className="grid gap-6 md:grid-cols-2">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Authentication Settings</CardTitle>
+                  <CardDescription>
+                    Manage your account security and authentication methods
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <LockKeyhole className="h-5 w-5 text-primary" />
+                      <div>
+                        <p className="font-medium">Password</p>
+                        <p className="text-sm text-muted-foreground">
+                          Last changed 30 days ago
+                        </p>
+                      </div>
+                    </div>
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => setPasswordDialogOpen(true)}
+                    >
+                      Change
+                    </Button>
+                  </div>
+                  
+                  <Separator />
+                  
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <Smartphone className="h-5 w-5 text-primary" />
+                      <div>
+                        <p className="font-medium">Two-Factor Authentication</p>
+                        <p className="text-sm text-muted-foreground">
+                          {mfaEnabled ? "Enabled" : "Disabled"}
+                        </p>
+                      </div>
+                    </div>
+                    <Button 
+                      variant={mfaEnabled ? "destructive" : "outline"} 
+                      size="sm"
+                      onClick={handleMfaToggle}
+                    >
+                      {mfaEnabled ? "Disable" : "Enable"}
+                    </Button>
+                  </div>
+                  
+                  <Separator />
+                  
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <Fingerprint className="h-5 w-5 text-primary" />
+                      <div>
+                        <p className="font-medium">Biometric Authentication</p>
+                        <p className="text-sm text-muted-foreground">
+                          {bioAuthEnabled ? "Enabled" : "Disabled"}
+                        </p>
+                      </div>
+                    </div>
+                    <Button 
+                      variant={bioAuthEnabled ? "destructive" : "outline"} 
+                      size="sm"
+                      onClick={handleBiometricToggle}
+                    >
+                      {bioAuthEnabled ? "Disable" : "Enable"}
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+              
+              <Card>
+                <CardHeader>
+                  <CardTitle>Security Features</CardTitle>
+                  <CardDescription>
+                    Advanced security features to protect your digital identity
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <div className="rounded-lg bg-amber-50 border border-amber-200 p-4">
+                    <div className="flex items-start gap-3">
+                      <AlertTriangle className="h-5 w-5 text-amber-600 mt-0.5" />
+                      <div>
+                        <h4 className="font-medium text-amber-800">Account Security Status</h4>
+                        <p className="text-sm text-amber-700">
+                          Your account security is good, but could be improved by enabling biometric authentication.
+                        </p>
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          className="mt-2 bg-amber-100 border-amber-200 text-amber-800 hover:bg-amber-200"
+                          onClick={handleBiometricToggle}
+                        >
+                          Improve Security
+                        </Button>
                       </div>
                     </div>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
+                  
+                  <div className="space-y-4">
+                    <h3 className="font-medium">Blockchain Document Security</h3>
+                    <p className="text-sm text-muted-foreground">
+                      Your documents are secured using blockchain technology for tamper-proof verification.
+                    </p>
+                    
+                    <div className="space-y-3">
+                      {documentsData.slice(0, 2).map((doc) => (
+                        <div key={doc.id} className="flex items-center justify-between rounded-lg border p-3">
+                          <div className="flex items-center gap-3">
+                            <div className="rounded-full bg-primary/10 p-2">
+                              <Shield className="h-5 w-5 text-primary" />
+                            </div>
+                            <div>
+                              <p className="font-medium">{doc.name}</p>
+                              <p className="text-xs text-muted-foreground">
+                                Secured on blockchain
+                              </p>
+                            </div>
+                          </div>
+                          <Button variant="ghost" size="sm">
+                            <Database className="h-4 w-4 mr-2" />
+                            Verify
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                    
+                    <Button variant="outline" className="w-full">
+                      View All Protected Documents
+                    </Button>
+                  </div>
+                  
+                  <div>
+                    <h3 className="font-medium mb-3">Active Sessions</h3>
+                    <Button 
+                      variant="destructive" 
+                      className="w-full"
+                      onClick={() => setAuthDialogOpen(true)}
+                    >
+                      <Key className="mr-2 h-4 w-4" />
+                      Logout from All Devices
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
           </TabsContent>
           
-          <TabsContent value="documents" className="mt-6">
+          <TabsContent value="activity" className="mt-6">
             <Card>
               <CardHeader>
-                <CardTitle>Blockchain-Secured Documents</CardTitle>
+                <CardTitle>Account Activity</CardTitle>
                 <CardDescription>
-                  Store and verify important documents with tamper-proof technology
+                  View your recent account activity and document access history
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="rounded-lg border p-6">
-                  <h3 className="mb-4 text-lg font-medium">Your Secure Documents</h3>
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between rounded-lg border p-4">
-                      <div className="flex items-start gap-3">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-md bg-primary/10">
-                          <ShieldCheck className="h-5 w-5 text-primary" />
-                        </div>
-                        <div>
-                          <h4 className="font-medium">Aadhaar Card</h4>
-                          <p className="text-xs text-muted-foreground">
-                            ID: XXXX-XXXX-7896 • Verified on blockchain
-                          </p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Button variant="outline" size="sm" onClick={handleCopy}>
-                          <Copy className="h-4 w-4" />
-                        </Button>
-                        <Button variant="outline" size="sm" onClick={handleShare}>
-                          <Share2 className="h-4 w-4" />
-                        </Button>
-                        <Button size="sm">
-                          <Eye className="mr-2 h-4 w-4" />
-                          View
-                        </Button>
-                      </div>
+                <Tabs defaultValue="login" className="w-full">
+                  <TabsList className="grid w-full max-w-md grid-cols-2">
+                    <TabsTrigger value="login">Login Activity</TabsTrigger>
+                    <TabsTrigger value="docs">Document Access</TabsTrigger>
+                  </TabsList>
+                  
+                  <TabsContent value="login" className="mt-4 space-y-4">
+                    <div className="relative overflow-x-auto rounded-md border">
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>Action</TableHead>
+                            <TableHead>Device</TableHead>
+                            <TableHead>Location</TableHead>
+                            <TableHead>Time</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {activityData.map((activity) => (
+                            <TableRow key={activity.id}>
+                              <TableCell className="font-medium">{activity.action}</TableCell>
+                              <TableCell>{activity.device}</TableCell>
+                              <TableCell>{activity.location}</TableCell>
+                              <TableCell>{activity.time}</TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
                     </div>
                     
-                    <div className="flex items-center justify-between rounded-lg border p-4">
+                    <div className="rounded-lg bg-primary/5 p-4">
                       <div className="flex items-start gap-3">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-md bg-primary/10">
-                          <ShieldCheck className="h-5 w-5 text-primary" />
-                        </div>
+                        <CheckCircle className="h-5 w-5 text-primary mt-0.5" />
                         <div>
-                          <h4 className="font-medium">PAN Card</h4>
-                          <p className="text-xs text-muted-foreground">
-                            ID: ABCDE1234F • Verified on blockchain
+                          <h4 className="font-medium">No Suspicious Activity Detected</h4>
+                          <p className="text-sm text-muted-foreground">
+                            Our AI-powered security system has not detected any suspicious login attempts or unusual activity patterns.
                           </p>
                         </div>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <Button variant="outline" size="sm" onClick={handleCopy}>
-                          <Copy className="h-4 w-4" />
-                        </Button>
-                        <Button variant="outline" size="sm" onClick={handleShare}>
-                          <Share2 className="h-4 w-4" />
-                        </Button>
-                        <Button size="sm">
-                          <Eye className="mr-2 h-4 w-4" />
-                          View
-                        </Button>
-                      </div>
+                    </div>
+                  </TabsContent>
+                  
+                  <TabsContent value="docs" className="mt-4 space-y-4">
+                    <div className="relative overflow-x-auto rounded-md border">
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>Document</TableHead>
+                            <TableHead>Status</TableHead>
+                            <TableHead>Last Accessed</TableHead>
+                            <TableHead>Actions</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {documentsData.map((doc) => (
+                            <TableRow key={doc.id}>
+                              <TableCell className="font-medium">{doc.name}</TableCell>
+                              <TableCell>
+                                {doc.status === "Verified" ? (
+                                  <span className="inline-flex items-center gap-1 rounded-full bg-green-100 px-2 py-1 text-xs font-medium text-green-800">
+                                    <CheckCheck className="h-3 w-3" /> Verified
+                                  </span>
+                                ) : (
+                                  <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-1 text-xs font-medium text-amber-800">
+                                    <Clock className="h-3 w-3" /> Pending
+                                  </span>
+                                )}
+                              </TableCell>
+                              <TableCell>{doc.lastAccessed}</TableCell>
+                              <TableCell>
+                                <Button variant="ghost" size="sm">
+                                  View Access Log
+                                </Button>
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
                     </div>
                     
-                    <div className="flex items-center justify-between rounded-lg border p-4">
+                    <div className="rounded-lg bg-primary/5 p-4">
                       <div className="flex items-start gap-3">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-md bg-primary/10">
-                          <ShieldCheck className="h-5 w-5 text-primary" />
-                        </div>
+                        <FileText className="h-5 w-5 text-primary mt-0.5" />
                         <div>
-                          <h4 className="font-medium">Driving License</h4>
-                          <p className="text-xs text-muted-foreground">
-                            ID: MH01-2021-0012345 • Verified on blockchain
+                          <h4 className="font-medium">Document Access Control</h4>
+                          <p className="text-sm text-muted-foreground">
+                            Every access to your documents is recorded with timestamp, location, and device information for your security.
                           </p>
                         </div>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <Button variant="outline" size="sm" onClick={handleCopy}>
-                          <Copy className="h-4 w-4" />
-                        </Button>
-                        <Button variant="outline" size="sm" onClick={handleShare}>
-                          <Share2 className="h-4 w-4" />
-                        </Button>
-                        <Button size="sm">
-                          <Eye className="mr-2 h-4 w-4" />
-                          View
-                        </Button>
-                      </div>
                     </div>
-                    
-                    <div className="flex items-center justify-between rounded-lg border p-4">
-                      <div className="flex items-start gap-3">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-md bg-primary/10">
-                          <ShieldCheck className="h-5 w-5 text-primary" />
-                        </div>
-                        <div>
-                          <h4 className="font-medium">Voter ID Card</h4>
-                          <p className="text-xs text-muted-foreground">
-                            ID: ABC1234567 • Verified on blockchain
-                          </p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Button variant="outline" size="sm" onClick={handleCopy}>
-                          <Copy className="h-4 w-4" />
-                        </Button>
-                        <Button variant="outline" size="sm" onClick={handleShare}>
-                          <Share2 className="h-4 w-4" />
-                        </Button>
-                        <Button size="sm">
-                          <Eye className="mr-2 h-4 w-4" />
-                          View
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                  </TabsContent>
+                </Tabs>
                 
                 <div className="mt-6 rounded-lg border p-6">
-                  <h3 className="mb-4 text-lg font-medium">Document Sharing</h3>
-                  
-                  {!showQRCode ? (
-                    <div className="grid gap-6 md:grid-cols-2">
-                      <div className="rounded-lg border p-4">
-                        <h4 className="mb-3 font-medium">Time-limited Access</h4>
-                        <p className="mb-4 text-sm text-muted-foreground">
-                          Share your documents securely with time-limited access that automatically expires
-                        </p>
-                        <Button variant="outline" className="w-full" onClick={() => setShowQRCode(true)}>
-                          Generate Secure Link
-                        </Button>
-                      </div>
-                      
-                      <div className="rounded-lg border p-4">
-                        <h4 className="mb-3 font-medium">Consent-Based Sharing</h4>
-                        <p className="mb-4 text-sm text-muted-foreground">
-                          Control exactly what information is shared with specific permissions
-                        </p>
-                        <Button variant="outline" className="w-full" onClick={() => setShowQRCode(true)}>
-                          Share with Consent Control
-                        </Button>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="flex flex-col items-center justify-center">
-                      <div className="mb-4 h-48 w-48 rounded-lg bg-muted flex items-center justify-center">
-                        <QRCode />
-                      </div>
-                      <h4 className="font-medium">Secure Document Share</h4>
-                      <p className="mb-4 text-sm text-muted-foreground">
-                        Scan this QR code or use the secure link below
-                      </p>
-                      <div className="mb-4 flex w-full max-w-md items-center gap-2 rounded-md border bg-muted/50 p-2">
-                        <code className="flex-1 overflow-hidden text-ellipsis whitespace-nowrap text-xs">
-                          https://secure.maharashtra.gov.in/share/doc-94829384982
-                        </code>
-                        <Button variant="ghost" size="sm" onClick={handleCopy}>
-                          <Copy className="h-4 w-4" />
-                        </Button>
-                      </div>
-                      <div className="flex flex-wrap gap-2">
-                        <Button variant="outline" onClick={() => setShowQRCode(false)}>
-                          Cancel
-                        </Button>
-                        <Button onClick={handleShare}>
-                          Share Link
-                        </Button>
-                      </div>
-                    </div>
-                  )}
-                </div>
-                
-                <div className="mt-6 rounded-lg border bg-secondary/30 p-6">
-                  <div className="flex items-start gap-4">
-                    <ShieldCheck className="mt-1 h-6 w-6 text-primary" />
-                    <div>
-                      <h3 className="font-medium">Blockchain Verification Technology</h3>
-                      <p className="mt-1 text-sm text-muted-foreground">
-                        All your documents are secured on a private blockchain, creating a tamper-proof digital record. Each document has a unique cryptographic hash, allowing instant verification while maintaining your privacy. This ensures your documents remain authentic and can be safely shared with authorized parties.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-          
-          <TabsContent value="account" className="mt-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Account Security</CardTitle>
-                <CardDescription>
-                  Manage your security settings and authentication methods
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-6">
-                  <div className="rounded-lg border p-6">
-                    <h3 className="mb-4 text-lg font-medium">Two-Factor Authentication</h3>
-                    <p className="mb-6 text-sm text-muted-foreground">
-                      Add an extra layer of security to your account by enabling two-factor authentication
+                  <div className="text-center">
+                    <Shield className="mx-auto mb-4 h-16 w-16 text-primary/60" />
+                    <h3 className="mb-2 text-xl font-medium">Blockchain-Based Verification</h3>
+                    <p className="mx-auto max-w-md text-muted-foreground">
+                      Your documents and identity are protected by advanced blockchain technology, ensuring tamper-proof verification and complete audit trails.
                     </p>
-                    <div className="grid gap-6 md:grid-cols-3">
-                      <Card className="cursor-pointer transition-colors hover:bg-muted/50">
-                        <CardContent className="flex flex-col items-center gap-2 p-6">
-                          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
-                            <Smartphone className="h-6 w-6 text-primary" />
-                          </div>
-                          <h4 className="text-center font-medium">SMS</h4>
-                          <p className="text-center text-xs text-muted-foreground">
-                            Receive verification codes via SMS
-                          </p>
-                          <Button variant="outline" size="sm" className="mt-2">Enable</Button>
-                        </CardContent>
-                      </Card>
-                      
-                      <Card className="cursor-pointer transition-colors hover:bg-muted/50">
-                        <CardContent className="flex flex-col items-center gap-2 p-6">
-                          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
-                            <Smartphone className="h-6 w-6 text-primary" />
-                          </div>
-                          <h4 className="text-center font-medium">Authentication App</h4>
-                          <p className="text-center text-xs text-muted-foreground">
-                            Use an authenticator app
-                          </p>
-                          <Button variant="outline" size="sm" className="mt-2">Set Up</Button>
-                        </CardContent>
-                      </Card>
-                      
-                      <Card className="cursor-pointer transition-colors hover:bg-muted/50">
-                        <CardContent className="flex flex-col items-center gap-2 p-6">
-                          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
-                            <Mail className="h-6 w-6 text-primary" />
-                          </div>
-                          <h4 className="text-center font-medium">Email</h4>
-                          <p className="text-center text-xs text-muted-foreground">
-                            Receive codes via email
-                          </p>
-                          <Button variant="outline" size="sm" className="mt-2">Enable</Button>
-                        </CardContent>
-                      </Card>
-                    </div>
                   </div>
                   
-                  <div className="rounded-lg border p-6">
-                    <h3 className="mb-4 text-lg font-medium">Security Settings</h3>
-                    <div className="space-y-4">
-                      <div className="flex items-center justify-between">
-                        <div className="space-y-0.5">
-                          <h4 className="font-medium">Biometric Authentication</h4>
-                          <p className="text-sm text-muted-foreground">
-                            Use fingerprint or face recognition for login
-                          </p>
-                        </div>
-                        <Button variant="outline">Set Up</Button>
+                  <div className="mt-6 grid gap-6 md:grid-cols-3">
+                    <div className="rounded-lg border bg-card p-4 text-center">
+                      <div className="mx-auto mb-4 flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary">
+                        <Database className="h-5 w-5" />
                       </div>
-                      <Separator />
-                      
-                      <div className="flex items-center justify-between">
-                        <div className="space-y-0.5">
-                          <h4 className="font-medium">Change Password</h4>
-                          <p className="text-sm text-muted-foreground">
-                            Update your account password
-                          </p>
-                        </div>
-                        <Button variant="outline">Update</Button>
-                      </div>
-                      <Separator />
-                      
-                      <div className="flex items-center justify-between">
-                        <div className="space-y-0.5">
-                          <h4 className="font-medium">Login Notifications</h4>
-                          <p className="text-sm text-muted-foreground">
-                            Get alerts when your account is accessed
-                          </p>
-                        </div>
-                        <Button variant="outline">Configure</Button>
-                      </div>
-                      <Separator />
-                      
-                      <div className="flex items-center justify-between">
-                        <div className="space-y-0.5">
-                          <h4 className="font-medium">Recent Login Activity</h4>
-                          <p className="text-sm text-muted-foreground">
-                            View your recent account access
-                          </p>
-                        </div>
-                        <Button variant="outline">View</Button>
-                      </div>
+                      <h4 className="mb-2 font-medium">Immutable Records</h4>
+                      <p className="text-sm text-muted-foreground">
+                        All verification transactions are permanently recorded on blockchain
+                      </p>
                     </div>
-                  </div>
-                  
-                  <div className="rounded-lg border p-6">
-                    <h3 className="mb-4 text-lg font-medium">Recovery Options</h3>
-                    <div className="space-y-4">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <Mail className="h-5 w-5 text-muted-foreground" />
-                          <div>
-                            <h4 className="font-medium">Recovery Email</h4>
-                            <p className="text-sm text-muted-foreground">
-                              a****@gmail.com
-                            </p>
-                          </div>
-                        </div>
-                        <Button variant="outline" size="sm">Update</Button>
+                    
+                    <div className="rounded-lg border bg-card p-4 text-center">
+                      <div className="mx-auto mb-4 flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary">
+                        <Scan className="h-5 w-5" />
                       </div>
-                      
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <Smartphone className="h-5 w-5 text-muted-foreground" />
-                          <div>
-                            <h4 className="font-medium">Recovery Phone</h4>
-                            <p className="text-sm text-muted-foreground">
-                              +91 ******7890
-                            </p>
-                          </div>
-                        </div>
-                        <Button variant="outline" size="sm">Update</Button>
+                      <h4 className="mb-2 font-medium">Instant Verification</h4>
+                      <p className="text-sm text-muted-foreground">
+                        Government departments can instantly verify your documents
+                      </p>
+                    </div>
+                    
+                    <div className="rounded-lg border bg-card p-4 text-center">
+                      <div className="mx-auto mb-4 flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary">
+                        <UserCheck className="h-5 w-5" />
                       </div>
-                      
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <Key className="h-5 w-5 text-muted-foreground" />
-                          <div>
-                            <h4 className="font-medium">Recovery Keys</h4>
-                            <p className="text-sm text-muted-foreground">
-                              Set up recovery keys for account access
-                            </p>
-                          </div>
-                        </div>
-                        <Button variant="outline" size="sm">Generate</Button>
-                      </div>
+                      <h4 className="mb-2 font-medium">User Control</h4>
+                      <p className="text-sm text-muted-foreground">
+                        You control who can access your documents and for how long
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -633,42 +570,160 @@ const SecureIdentity = () => {
             </Card>
           </TabsContent>
         </Tabs>
+        
+        {/* Authentication Related Dialogs */}
+        <Dialog open={passwordDialogOpen} onOpenChange={setPasswordDialogOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Change Password</DialogTitle>
+              <DialogDescription>
+                Create a new secure password for your account
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <Label htmlFor="current-password">Current Password</Label>
+                <Input id="current-password" type="password" />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="new-password">New Password</Label>
+                <Input id="new-password" type="password" />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="confirm-password">Confirm New Password</Label>
+                <Input id="confirm-password" type="password" />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setPasswordDialogOpen(false)}>
+                Cancel
+              </Button>
+              <Button onClick={handlePasswordChange}>
+                Update Password
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+        
+        <Dialog open={mfaDialogOpen} onOpenChange={setMfaDialogOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>
+                {mfaEnabled ? "Disable Two-Factor Authentication?" : "Enable Two-Factor Authentication?"}
+              </DialogTitle>
+              <DialogDescription>
+                {mfaEnabled 
+                  ? "This will reduce the security of your account. Are you sure you want to continue?" 
+                  : "Add an additional layer of security to your account"}
+              </DialogDescription>
+            </DialogHeader>
+            <div className="py-4">
+              {mfaEnabled ? (
+                <div className="flex items-start gap-3 rounded-lg bg-destructive/10 p-4">
+                  <AlertTriangle className="h-5 w-5 text-destructive mt-0.5" />
+                  <div>
+                    <h4 className="font-medium text-destructive">Security Warning</h4>
+                    <p className="text-sm text-destructive/80">
+                      Disabling two-factor authentication will make your account more vulnerable to unauthorized access.
+                    </p>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex items-start gap-3 rounded-lg bg-primary/10 p-4">
+                  <Shield className="h-5 w-5 text-primary mt-0.5" />
+                  <div>
+                    <h4 className="font-medium">Enhanced Security</h4>
+                    <p className="text-sm text-muted-foreground">
+                      Two-factor authentication requires both your password and a verification code from your mobile device to log in.
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setMfaDialogOpen(false)}>
+                Cancel
+              </Button>
+              <Button 
+                variant={mfaEnabled ? "destructive" : "default"}
+                onClick={confirmMfaToggle}
+              >
+                {mfaEnabled ? "Disable" : "Enable"} Two-Factor Authentication
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+        
+        <Dialog open={biometricDialogOpen} onOpenChange={setBiometricDialogOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>
+                {bioAuthEnabled ? "Disable Biometric Authentication?" : "Enable Biometric Authentication?"}
+              </DialogTitle>
+              <DialogDescription>
+                {bioAuthEnabled 
+                  ? "This will remove fingerprint and face authentication options" 
+                  : "Use your fingerprint or face for faster, more secure login"}
+              </DialogDescription>
+            </DialogHeader>
+            <div className="py-4">
+              {!bioAuthEnabled && (
+                <div className="flex flex-col items-center gap-4 p-4">
+                  <Fingerprint className="h-16 w-16 text-primary" />
+                  <p className="text-center text-sm text-muted-foreground">
+                    Biometric authentication allows you to log in using your fingerprint or face, providing a faster and more secure authentication method.
+                  </p>
+                </div>
+              )}
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setBiometricDialogOpen(false)}>
+                Cancel
+              </Button>
+              <Button 
+                variant={bioAuthEnabled ? "destructive" : "default"}
+                onClick={confirmBiometricToggle}
+              >
+                {bioAuthEnabled ? "Disable" : "Enable"} Biometric Authentication
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+        
+        <Dialog open={authDialogOpen} onOpenChange={setAuthDialogOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Log Out From All Devices?</DialogTitle>
+              <DialogDescription>
+                This will terminate all active sessions except the current one
+              </DialogDescription>
+            </DialogHeader>
+            <div className="py-4">
+              <div className="flex items-start gap-3 rounded-lg bg-amber-50 p-4 border border-amber-200">
+                <AlertTriangle className="h-5 w-5 text-amber-600 mt-0.5" />
+                <div>
+                  <h4 className="font-medium text-amber-800">All devices will be logged out</h4>
+                  <p className="text-sm text-amber-700">
+                    You will need to log in again on all other devices. This action cannot be undone.
+                  </p>
+                </div>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setAuthDialogOpen(false)}>
+                Cancel
+              </Button>
+              <Button 
+                variant="destructive"
+                onClick={handleLogoutEverywhere}
+              >
+                Log Out From All Devices
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </Layout>
-  );
-};
-
-// Simple QR code component
-const QRCode = () => {
-  return (
-    <div className="grid h-full w-full place-items-center">
-      <div className="h-40 w-40 bg-white p-2">
-        <div className="grid h-full w-full grid-cols-5 grid-rows-5 gap-1">
-          {/* QR code pattern */}
-          <div className="col-span-1 row-span-1 bg-black"></div>
-          <div className="col-span-3 row-span-1"></div>
-          <div className="col-span-1 row-span-1 bg-black"></div>
-          
-          <div className="col-span-1 row-span-3"></div>
-          <div className="col-span-3 row-span-3 grid grid-cols-3 grid-rows-3 gap-1">
-            <div className="bg-black"></div>
-            <div></div>
-            <div className="bg-black"></div>
-            <div></div>
-            <div className="bg-black"></div>
-            <div></div>
-            <div className="bg-black"></div>
-            <div></div>
-            <div className="bg-black"></div>
-          </div>
-          <div className="col-span-1 row-span-3"></div>
-          
-          <div className="col-span-1 row-span-1 bg-black"></div>
-          <div className="col-span-3 row-span-1"></div>
-          <div className="col-span-1 row-span-1 bg-black"></div>
-        </div>
-      </div>
-    </div>
   );
 };
 

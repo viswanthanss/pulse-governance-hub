@@ -1,8 +1,6 @@
+
 import { useState } from "react";
 import Layout from "@/components/layout/Layout";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import {
   Card,
   CardContent,
@@ -11,12 +9,10 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@/components/ui/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -25,311 +21,193 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
-  Users,
-  MessageSquare,
-  ThumbsUp,
-  ThumbsDown,
-  Search,
-  Filter,
-  Upload,
-  MapPin,
-  Camera,
-  Star,
-  Clock,
-  AlertTriangle,
-  Building,
-  Landmark,
-  Trash2,
-  Lightbulb
-} from "lucide-react";
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { toast } from "sonner";
+import {
+  ThumbsUp,
+  MessageSquare,
+  Upload,
+  BarChart,
+  Star,
+  Users,
+  Camera,
+  Building,
+  FileText,
+  Trash2,
+  CheckCircle,
+  Lightbulb,
+  AlertTriangle,
+  MapPin,
+  Clock,
+  User,
+  Menu
+} from "lucide-react";
 
-const forumPosts = [
+// Mock data for community posts
+const communityPosts = [
   {
-    id: "post-1",
-    title: "Water supply issues in Malad West",
-    author: "Rajesh Sharma",
-    content: "There has been irregular water supply in Malad West for the past week. Is anyone else facing similar issues?",
-    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 4).toISOString(),
+    id: "post1",
+    author: "Rahul Sharma",
+    avatar: "https://i.pravatar.cc/150?img=1",
+    date: "2 hours ago",
+    content: "The new road construction in Koregaon Park is causing severe traffic jams. Can authorities provide an estimated completion timeline?",
     likes: 24,
+    comments: 8,
+    category: "Infrastructure"
+  },
+  {
+    id: "post2",
+    author: "Priya Desai",
+    avatar: "https://i.pravatar.cc/150?img=2",
+    date: "Yesterday",
+    content: "The water supply in Aundh has been irregular for the past week. Multiple complaints have been submitted but no action taken yet.",
+    likes: 42,
     comments: 15,
     category: "Water Supply"
   },
   {
-    id: "post-2",
-    title: "Need traffic management at Andheri Junction",
-    author: "Priya Patel",
-    content: "The traffic situation at Andheri Junction is getting worse every day. Can we request the authorities to place traffic police during peak hours?",
-    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 12).toISOString(),
-    likes: 42,
-    comments: 28,
-    category: "Traffic"
+    id: "post3",
+    author: "Amit Joshi",
+    avatar: "https://i.pravatar.cc/150?img=3",
+    date: "3 days ago",
+    content: "Kudos to the municipal team for the prompt action on cleaning the drainage system in Kothrud area before monsoon. Great preventive work!",
+    likes: 87,
+    comments: 12,
+    category: "Sanitation"
+  }
+];
+
+// Mock data for service ratings
+const serviceRatings = [
+  {
+    id: "service1",
+    name: "Water Supply Department",
+    rating: 3.5,
+    totalRatings: 1245,
+    description: "Manages water supply and infrastructure"
   },
   {
-    id: "post-3",
-    title: "Appreciation for the new waste collection system",
-    author: "Mohammed Khan",
-    content: "I want to appreciate the new waste collection system implemented in our area. It's much more efficient and timely.",
-    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(),
-    likes: 56,
-    comments: 8,
+    id: "service2",
+    name: "Property Tax Department",
+    rating: 4.2,
+    totalRatings: 876,
+    description: "Handles property tax assessment and collection"
+  },
+  {
+    id: "service3",
+    name: "Road Construction Department",
+    rating: 2.8,
+    totalRatings: 1567,
+    description: "Responsible for road construction and maintenance"
+  },
+  {
+    id: "service4",
+    name: "Waste Management Department",
+    rating: 3.7,
+    totalRatings: 928,
+    description: "Manages waste collection and disposal services"
+  }
+];
+
+// Mock data for reported issues
+const reportedIssues = [
+  {
+    id: "issue1",
+    title: "Garbage dump near Koregaon Park",
+    location: "Near Lane 7, Koregaon Park, Pune",
+    status: "Under Review",
+    date: "Jun 10, 2023",
     category: "Sanitation"
   },
   {
-    id: "post-4",
-    title: "Request for a new playground in Thane East",
-    author: "Anita Desai",
-    content: "Our community needs a playground for children. There's vacant land near the municipal office that could be developed.",
-    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 36).toISOString(),
-    likes: 78,
-    comments: 32,
-    category: "Infrastructure"
-  }
-];
-
-const issueReports = [
-  {
-    id: "issue-1",
-    title: "Pothole on SV Road",
-    category: "Roads",
-    status: "In Progress",
-    location: "SV Road, near Goregaon Station",
-    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 48).toISOString(),
-    upvotes: 45,
-    hasImage: true
-  },
-  {
-    id: "issue-2",
-    title: "Street light not working",
-    category: "Electricity",
-    status: "Pending",
-    location: "Lane 4, Bandra West",
-    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 32).toISOString(),
-    upvotes: 12,
-    hasImage: true
-  },
-  {
-    id: "issue-3",
-    title: "Garbage dumping",
-    category: "Sanitation",
-    status: "Resolved",
-    location: "Behind City Mall, Andheri East",
-    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 72).toISOString(),
-    upvotes: 28,
-    hasImage: true
-  },
-  {
-    id: "issue-4",
-    title: "Broken footpath",
-    category: "Infrastructure",
+    id: "issue2",
+    title: "Pothole on Baner Road",
+    location: "Baner Road, near Orchid Hotel",
     status: "Assigned",
-    location: "MG Road, Fort Area",
-    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(),
-    upvotes: 19,
-    hasImage: false
-  }
-];
-
-const serviceRatings = [
-  {
-    id: "service-1",
-    name: "Water Supply Department",
-    averageRating: 3.5,
-    totalRatings: 1245,
-    improvement: "+0.3",
-    isImproved: true
+    date: "Jun 5, 2023",
+    category: "Infrastructure"
   },
   {
-    id: "service-2",
-    name: "Road Transport Department",
-    averageRating: 2.8,
-    totalRatings: 987,
-    improvement: "-0.2",
-    isImproved: false
-  },
-  {
-    id: "service-3",
-    name: "Electricity Department",
-    averageRating: 4.1,
-    totalRatings: 1567,
-    improvement: "+0.5",
-    isImproved: true
-  },
-  {
-    id: "service-4",
-    name: "Sanitation Department",
-    averageRating: 3.2,
-    totalRatings: 1102,
-    improvement: "+0.1",
-    isImproved: true
-  },
-  {
-    id: "service-5",
-    name: "Public Health Department",
-    averageRating: 3.9,
-    totalRatings: 856,
-    improvement: "+0.2",
-    isImproved: true
+    id: "issue3",
+    title: "Street light not working",
+    location: "FC Road, near Fergusson College",
+    status: "Resolved",
+    date: "May 28, 2023",
+    category: "Electricity"
   }
 ];
 
 const CommunityEngagement = () => {
-  const [forumSearchQuery, setForumSearchQuery] = useState("");
-  const [forumCategoryFilter, setForumCategoryFilter] = useState("all");
-  const [issueSearchQuery, setIssueSearchQuery] = useState("");
-  const [issueCategoryFilter, setIssueCategoryFilter] = useState("all");
-  const [issueStatusFilter, setIssueStatusFilter] = useState("all");
+  const [activeTab, setActiveTab] = useState("forum");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [reportDialogOpen, setReportDialogOpen] = useState(false);
+  const [feedbackDialogOpen, setFeedbackDialogOpen] = useState(false);
   
-  const [newPost, setNewPost] = useState({
-    title: "",
-    content: "",
-    category: ""
-  });
-  
-  const [newIssue, setNewIssue] = useState({
-    title: "",
-    category: "",
-    description: "",
-    location: "",
-    attachments: [] as File[]
-  });
-  
-  const filteredPosts = forumPosts.filter(post => {
-    const matchesSearch = 
-      post.title.toLowerCase().includes(forumSearchQuery.toLowerCase()) ||
-      post.content.toLowerCase().includes(forumSearchQuery.toLowerCase());
-    
-    const matchesCategory = 
-      forumCategoryFilter === "all" || 
-      post.category.toLowerCase() === forumCategoryFilter.toLowerCase();
-    
-    return matchesSearch && matchesCategory;
-  });
-  
-  const filteredIssues = issueReports.filter(issue => {
-    const matchesSearch = 
-      issue.title.toLowerCase().includes(issueSearchQuery.toLowerCase()) ||
-      issue.location.toLowerCase().includes(issueSearchQuery.toLowerCase());
-    
-    const matchesCategory = 
-      issueCategoryFilter === "all" || 
-      issue.category.toLowerCase() === issueCategoryFilter.toLowerCase();
-    
-    const matchesStatus = 
-      issueStatusFilter === "all" || 
-      issue.status.toLowerCase() === issueStatusFilter.toLowerCase();
-    
-    return matchesSearch && matchesCategory && matchesStatus;
-  });
-  
-  const handleNewPostSubmit = (e: React.FormEvent) => {
+  const handlePostSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Submitting new post:", newPost);
+    setIsSubmitting(true);
     
-    toast.success("Post submitted successfully", {
-      description: "Your post has been published to the community forum",
-    });
-    
-    setNewPost({
-      title: "",
-      content: "",
-      category: ""
-    });
+    // Simulate API call
+    setTimeout(() => {
+      setIsSubmitting(false);
+      toast.success("Post submitted successfully", {
+        description: "Your post has been published to the community forum",
+      });
+    }, 1500);
   };
   
-  const handleNewIssueSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log("Submitting new issue:", newIssue);
-    
+  const handleReportSubmit = () => {
+    setReportDialogOpen(false);
     toast.success("Issue reported successfully", {
-      description: "Your issue has been reported and will be addressed soon",
-    });
-    
-    setNewIssue({
-      title: "",
-      category: "",
-      description: "",
-      location: "",
-      attachments: []
+      description: "Your report has been submitted and will be reviewed",
     });
   };
   
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      setNewIssue(prev => ({ 
-        ...prev, 
-        attachments: [...prev.attachments, ...Array.from(e.target.files as FileList)]
-      }));
-    }
+  const handleFeedbackSubmit = () => {
+    setFeedbackDialogOpen(false);
+    toast.success("Feedback submitted successfully", {
+      description: "Thank you for rating the service",
+    });
   };
   
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>, form: 'post' | 'issue') => {
-    const { name, value } = e.target;
-    
-    if (form === 'post') {
-      setNewPost(prev => ({ ...prev, [name]: value }));
-    } else {
-      setNewIssue(prev => ({ ...prev, [name]: value }));
-    }
-  };
-  
-  const formatTimeAgo = (timestamp: string) => {
-    const date = new Date(timestamp);
-    const now = new Date();
-    const diffMs = now.getTime() - date.getTime();
-    const diffMins = Math.round(diffMs / (1000 * 60));
-    const diffHours = Math.round(diffMs / (1000 * 60 * 60));
-    const diffDays = Math.round(diffMs / (1000 * 60 * 60 * 24));
-    
-    if (diffMins < 60) return `${diffMins} minute${diffMins !== 1 ? 's' : ''} ago`;
-    if (diffHours < 24) return `${diffHours} hour${diffHours !== 1 ? 's' : ''} ago`;
-    return `${diffDays} day${diffDays !== 1 ? 's' : ''} ago`;
-  };
-  
-  const renderStars = (rating: number) => {
+  const StarRating = ({ rating }: { rating: number }) => {
     const fullStars = Math.floor(rating);
-    const halfStar = rating % 1 >= 0.5;
-    const emptyStars = 5 - fullStars - (halfStar ? 1 : 0);
+    const hasHalfStar = rating % 1 !== 0;
+    const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
     
     return (
-      <div className="flex">
+      <div className="flex items-center">
         {[...Array(fullStars)].map((_, i) => (
-          <Star key={`full-${i}`} className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+          <Star key={`full-${i}`} className="h-5 w-5 fill-amber-400 text-amber-400" />
         ))}
-        {halfStar && <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />}
+        {hasHalfStar && (
+          <Star className="h-5 w-5 fill-amber-400 text-amber-400" />
+        )}
         {[...Array(emptyStars)].map((_, i) => (
-          <Star key={`empty-${i}`} className="h-4 w-4 text-yellow-400" />
+          <Star key={`empty-${i}`} className="h-5 w-5 text-muted-foreground" />
         ))}
+        <span className="ml-2 text-sm font-medium">{rating.toFixed(1)}</span>
       </div>
     );
   };
   
-  const getIssueStatusIcon = (status: string) => {
-    switch (status.toLowerCase()) {
-      case "resolved":
-        return <div className="h-2 w-2 rounded-full bg-green-500" />;
-      case "in progress":
-      case "assigned":
-        return <div className="h-2 w-2 rounded-full bg-amber-500" />;
-      case "pending":
-        return <div className="h-2 w-2 rounded-full bg-red-500" />;
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case "Under Review":
+        return <span className="inline-flex items-center gap-1 rounded-full bg-blue-100 px-2 py-1 text-xs font-medium text-blue-800"><Clock className="h-3 w-3" /> {status}</span>;
+      case "Assigned":
+        return <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-1 text-xs font-medium text-amber-800"><User className="h-3 w-3" /> {status}</span>;
+      case "Resolved":
+        return <span className="inline-flex items-center gap-1 rounded-full bg-green-100 px-2 py-1 text-xs font-medium text-green-800"><CheckCircle className="h-3 w-3" /> {status}</span>;
       default:
-        return <div className="h-2 w-2 rounded-full bg-slate-500" />;
-    }
-  };
-  
-  const getIssueCategoryIcon = (category: string) => {
-    switch (category.toLowerCase()) {
-      case "roads":
-        return <Landmark className="h-4 w-4" />;
-      case "electricity":
-        return <Lightbulb className="h-4 w-4" />;
-      case "sanitation":
-        return <Trash2 className="h-4 w-4" />;
-      case "infrastructure":
-        return <Building className="h-4 w-4" />;
-      default:
-        return <AlertTriangle className="h-4 w-4" />;
+        return <span className="inline-flex items-center gap-1 rounded-full bg-gray-100 px-2 py-1 text-xs font-medium text-gray-800">{status}</span>;
     }
   };
   
@@ -337,499 +215,228 @@ const CommunityEngagement = () => {
     <Layout>
       <div className="container py-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold tracking-tight">Community Engagement Portal</h1>
+          <h1 className="text-3xl font-bold tracking-tight">Community Engagement</h1>
           <p className="text-muted-foreground">
-            Connect with your community, report issues, and rate government services
+            Connect with your community, report issues, and provide feedback on government services
           </p>
         </div>
         
-        <Tabs defaultValue="forum" className="w-full">
+        <Tabs defaultValue={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full max-w-md grid-cols-3">
-            <TabsTrigger value="forum">Citizen Forum</TabsTrigger>
-            <TabsTrigger value="issues">Report Issues</TabsTrigger>
-            <TabsTrigger value="ratings">Service Ratings</TabsTrigger>
+            <TabsTrigger value="forum">Discussion Forum</TabsTrigger>
+            <TabsTrigger value="report">Report Issues</TabsTrigger>
+            <TabsTrigger value="rate">Rate Services</TabsTrigger>
           </TabsList>
           
           <TabsContent value="forum" className="mt-6">
             <Card>
-              <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-                <div>
-                  <CardTitle>Community Discussion Forum</CardTitle>
-                  <CardDescription>
-                    Discuss local issues, share ideas, and connect with your community
-                  </CardDescription>
-                </div>
-                <div className="mt-4 sm:mt-0">
-                  <Button>
-                    <MessageSquare className="mr-2 h-4 w-4" />
-                    Create New Post
-                  </Button>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="mb-6 flex flex-col gap-4 sm:flex-row">
-                  <div className="relative flex-1">
-                    <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      placeholder="Search discussions..."
-                      className="pl-8"
-                      value={forumSearchQuery}
-                      onChange={(e) => setForumSearchQuery(e.target.value)}
-                    />
-                  </div>
-                  <div className="flex w-full items-center gap-2 sm:w-auto">
-                    <Filter className="h-4 w-4 text-muted-foreground" />
-                    <Select
-                      value={forumCategoryFilter}
-                      onValueChange={setForumCategoryFilter}
-                    >
-                      <SelectTrigger className="w-full sm:w-[180px]">
-                        <SelectValue placeholder="Filter by category" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="all">All Categories</SelectItem>
-                        <SelectItem value="water supply">Water Supply</SelectItem>
-                        <SelectItem value="traffic">Traffic</SelectItem>
-                        <SelectItem value="sanitation">Sanitation</SelectItem>
-                        <SelectItem value="infrastructure">Infrastructure</SelectItem>
-                        <SelectItem value="electricity">Electricity</SelectItem>
-                        <SelectItem value="education">Education</SelectItem>
-                        <SelectItem value="health">Health</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-                
-                <div className="mb-8 space-y-4">
-                  {filteredPosts.length > 0 ? (
-                    filteredPosts.map((post) => (
-                      <div key={post.id} className="rounded-lg border p-4 animate-fade-in">
-                        <div className="flex items-start justify-between">
-                          <div>
-                            <h3 className="font-semibold">{post.title}</h3>
-                            <div className="mt-1 flex items-center gap-2 text-sm text-muted-foreground">
-                              <span>{post.author}</span>
-                              <span>•</span>
-                              <span>{formatTimeAgo(post.timestamp)}</span>
-                              <span>•</span>
-                              <span className="rounded-full bg-secondary px-2 py-0.5 text-xs">
-                                {post.category}
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-                        <p className="mt-2 text-sm">{post.content}</p>
-                        <div className="mt-4 flex items-center gap-4">
-                          <button className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
-                            <ThumbsUp className="h-4 w-4" />
-                            <span>{post.likes}</span>
-                          </button>
-                          <button className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
-                            <MessageSquare className="h-4 w-4" />
-                            <span>{post.comments} Comments</span>
-                          </button>
-                        </div>
-                      </div>
-                    ))
-                  ) : (
-                    <div className="flex flex-col items-center justify-center rounded-lg border border-dashed p-8 text-center">
-                      <MessageSquare className="mb-2 h-10 w-10 text-muted-foreground" />
-                      <h3 className="text-lg font-medium">No discussions found</h3>
-                      <p className="mt-1 text-sm text-muted-foreground">
-                        {forumSearchQuery || forumCategoryFilter !== "all" 
-                          ? "Try changing your search or filter criteria" 
-                          : "Be the first to start a discussion in your community"}
-                      </p>
-                    </div>
-                  )}
-                </div>
-                
-                <div className="rounded-lg border p-6">
-                  <h3 className="mb-4 text-lg font-medium">Start a New Discussion</h3>
-                  <form onSubmit={handleNewPostSubmit}>
-                    <div className="space-y-4">
-                      <div>
-                        <Label htmlFor="title">Discussion Title</Label>
-                        <Input 
-                          id="title"
-                          name="title"
-                          placeholder="Enter a clear, specific title"
-                          className="mt-1"
-                          value={newPost.title}
-                          onChange={(e) => handleInputChange(e, 'post')}
-                          required
-                        />
-                      </div>
-                      
-                      <div>
-                        <Label htmlFor="post-category">Category</Label>
-                        <Select
-                          value={newPost.category}
-                          onValueChange={(value) => setNewPost(prev => ({ ...prev, category: value }))}
-                        >
-                          <SelectTrigger id="post-category" className="mt-1">
-                            <SelectValue placeholder="Select a category" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="water supply">Water Supply</SelectItem>
-                            <SelectItem value="traffic">Traffic</SelectItem>
-                            <SelectItem value="sanitation">Sanitation</SelectItem>
-                            <SelectItem value="infrastructure">Infrastructure</SelectItem>
-                            <SelectItem value="electricity">Electricity</SelectItem>
-                            <SelectItem value="education">Education</SelectItem>
-                            <SelectItem value="health">Health</SelectItem>
-                            <SelectItem value="other">Other</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      
-                      <div>
-                        <Label htmlFor="content">Discussion Details</Label>
-                        <Textarea
-                          id="content"
-                          name="content"
-                          placeholder="Describe your discussion topic in detail"
-                          rows={5}
-                          className="mt-1"
-                          value={newPost.content}
-                          onChange={(e) => handleInputChange(e, 'post')}
-                          required
-                        />
-                      </div>
-                      
-                      <div className="pt-3 text-right">
-                        <Button type="submit">Post Discussion</Button>
-                      </div>
-                    </div>
-                  </form>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-          
-          <TabsContent value="issues" className="mt-6">
-            <Card>
-              <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-                <div>
-                  <CardTitle>Community Issue Reporting</CardTitle>
-                  <CardDescription>
-                    Report local infrastructure problems, illegal activities, and other issues
-                  </CardDescription>
-                </div>
-                <div className="mt-4 sm:mt-0">
-                  <Button>
-                    <AlertTriangle className="mr-2 h-4 w-4" />
-                    Report New Issue
-                  </Button>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="mb-6 flex flex-col gap-4 sm:flex-row">
-                  <div className="relative flex-1">
-                    <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      placeholder="Search reported issues..."
-                      className="pl-8"
-                      value={issueSearchQuery}
-                      onChange={(e) => setIssueSearchQuery(e.target.value)}
-                    />
-                  </div>
-                  <div className="flex w-full flex-wrap gap-2 sm:w-auto">
-                    <Select
-                      value={issueCategoryFilter}
-                      onValueChange={setIssueCategoryFilter}
-                    >
-                      <SelectTrigger className="w-full sm:w-[150px]">
-                        <SelectValue placeholder="Category" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="all">All Categories</SelectItem>
-                        <SelectItem value="roads">Roads</SelectItem>
-                        <SelectItem value="electricity">Electricity</SelectItem>
-                        <SelectItem value="sanitation">Sanitation</SelectItem>
-                        <SelectItem value="infrastructure">Infrastructure</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    
-                    <Select
-                      value={issueStatusFilter}
-                      onValueChange={setIssueStatusFilter}
-                    >
-                      <SelectTrigger className="w-full sm:w-[150px]">
-                        <SelectValue placeholder="Status" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="all">All Statuses</SelectItem>
-                        <SelectItem value="pending">Pending</SelectItem>
-                        <SelectItem value="in progress">In Progress</SelectItem>
-                        <SelectItem value="assigned">Assigned</SelectItem>
-                        <SelectItem value="resolved">Resolved</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-                
-                <div className="mb-8 grid gap-4 sm:grid-cols-2">
-                  {filteredIssues.length > 0 ? (
-                    filteredIssues.map((issue) => (
-                      <div key={issue.id} className="rounded-lg border p-4 animate-fade-in">
-                        <div className="flex items-start justify-between">
-                          <div>
-                            <div className="flex items-center gap-2">
-                              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-muted">
-                                {getIssueCategoryIcon(issue.category)}
-                              </div>
-                              <h3 className="font-semibold">{issue.title}</h3>
-                            </div>
-                            <div className="mt-2 flex items-center gap-2 text-sm text-muted-foreground">
-                              <MapPin className="h-3 w-3" />
-                              <span>{issue.location}</span>
-                            </div>
-                          </div>
-                          <div className="flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs font-medium">
-                            {getIssueStatusIcon(issue.status)}
-                            <span>{issue.status}</span>
-                          </div>
-                        </div>
-                        
-                        {issue.hasImage && (
-                          <div className="mt-3 h-36 rounded-md bg-muted flex items-center justify-center">
-                            <Camera className="h-6 w-6 text-muted-foreground" />
-                          </div>
-                        )}
-                        
-                        <div className="mt-3 flex items-center justify-between">
-                          <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                            <Clock className="h-3 w-3" />
-                            <span>{formatTimeAgo(issue.timestamp)}</span>
-                          </div>
-                          <button className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
-                            <ThumbsUp className="h-3 w-3" />
-                            <span>{issue.upvotes}</span>
-                          </button>
-                        </div>
-                      </div>
-                    ))
-                  ) : (
-                    <div className="col-span-2 flex flex-col items-center justify-center rounded-lg border border-dashed p-8 text-center">
-                      <AlertTriangle className="mb-2 h-10 w-10 text-muted-foreground" />
-                      <h3 className="text-lg font-medium">No issues found</h3>
-                      <p className="mt-1 text-sm text-muted-foreground">
-                        {issueSearchQuery || issueCategoryFilter !== "all" || issueStatusFilter !== "all"
-                          ? "Try changing your search or filter criteria" 
-                          : "No issues have been reported in your area yet"}
-                      </p>
-                    </div>
-                  )}
-                </div>
-                
-                <div className="rounded-lg border p-6">
-                  <h3 className="mb-4 text-lg font-medium">Report a New Issue</h3>
-                  <form onSubmit={handleNewIssueSubmit}>
-                    <div className="space-y-4">
-                      <div>
-                        <Label htmlFor="issue-title">Issue Title</Label>
-                        <Input 
-                          id="issue-title"
-                          name="title"
-                          placeholder="Briefly describe the issue"
-                          className="mt-1"
-                          value={newIssue.title}
-                          onChange={(e) => handleInputChange(e, 'issue')}
-                          required
-                        />
-                      </div>
-                      
-                      <div>
-                        <Label htmlFor="issue-category">Category</Label>
-                        <Select
-                          value={newIssue.category}
-                          onValueChange={(value) => setNewIssue(prev => ({ ...prev, category: value }))}
-                        >
-                          <SelectTrigger id="issue-category" className="mt-1">
-                            <SelectValue placeholder="Select a category" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="roads">Roads</SelectItem>
-                            <SelectItem value="electricity">Electricity</SelectItem>
-                            <SelectItem value="sanitation">Sanitation</SelectItem>
-                            <SelectItem value="infrastructure">Infrastructure</SelectItem>
-                            <SelectItem value="water">Water Supply</SelectItem>
-                            <SelectItem value="illegal">Illegal Activity</SelectItem>
-                            <SelectItem value="other">Other</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      
-                      <div>
-                        <Label htmlFor="issue-description">Issue Description</Label>
-                        <Textarea
-                          id="issue-description"
-                          name="description"
-                          placeholder="Provide details about the issue"
-                          rows={3}
-                          className="mt-1"
-                          value={newIssue.description}
-                          onChange={(e) => handleInputChange(e, 'issue')}
-                          required
-                        />
-                      </div>
-                      
-                      <div>
-                        <Label htmlFor="issue-location">Location</Label>
-                        <Input 
-                          id="issue-location"
-                          name="location"
-                          placeholder="Enter the exact location of the issue"
-                          className="mt-1"
-                          value={newIssue.location}
-                          onChange={(e) => handleInputChange(e, 'issue')}
-                          required
-                        />
-                      </div>
-                      
-                      <div>
-                        <Label htmlFor="issue-photos">Photos (Optional)</Label>
-                        <div className="mt-1 flex items-center gap-4">
-                          <Button
-                            type="button"
-                            variant="outline"
-                            onClick={() => document.getElementById("issue-upload")?.click()}
-                          >
-                            <Camera className="mr-2 h-4 w-4" />
-                            Upload Photos
-                          </Button>
-                          <Input
-                            id="issue-upload"
-                            type="file"
-                            className="hidden"
-                            onChange={handleFileChange}
-                            multiple
-                            accept="image/*"
-                          />
-                          <span className="text-sm text-muted-foreground">
-                            {newIssue.attachments.length > 0 
-                              ? `${newIssue.attachments.length} photo(s) selected` 
-                              : "No photos selected"}
-                          </span>
-                        </div>
-                      </div>
-                      
-                      <div className="pt-3 text-right">
-                        <Button type="submit">Submit Report</Button>
-                      </div>
-                    </div>
-                  </form>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-          
-          <TabsContent value="ratings" className="mt-6">
-            <Card>
               <CardHeader>
-                <CardTitle>Rate Government Services</CardTitle>
+                <CardTitle>Community Discussion Forum</CardTitle>
                 <CardDescription>
-                  Provide feedback on government departments and services
+                  Share your thoughts, concerns, and ideas with the community
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="mb-8 overflow-x-auto">
-                  <table className="w-full text-sm">
-                    <thead>
-                      <tr className="border-b">
-                        <th className="pb-3 text-left font-medium">Department/Service</th>
-                        <th className="pb-3 text-left font-medium">Rating</th>
-                        <th className="pb-3 text-left font-medium">Total Reviews</th>
-                        <th className="pb-3 text-left font-medium">Trend</th>
-                        <th className="pb-3 text-left font-medium">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {serviceRatings.map((service) => (
-                        <tr key={service.id} className="border-b">
-                          <td className="py-4 font-medium">{service.name}</td>
-                          <td className="py-4">
-                            <div className="flex items-center gap-2">
-                              {renderStars(service.averageRating)}
-                              <span>{service.averageRating.toFixed(1)}/5</span>
+                <form onSubmit={handlePostSubmit} className="mb-8">
+                  <div className="space-y-4">
+                    <div>
+                      <Textarea 
+                        placeholder="What's on your mind? Share your thoughts or concerns..."
+                        className="min-h-[120px]"
+                      />
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <Select>
+                        <SelectTrigger className="w-[180px]">
+                          <SelectValue placeholder="Select category" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="infrastructure">Infrastructure</SelectItem>
+                          <SelectItem value="water">Water Supply</SelectItem>
+                          <SelectItem value="electricity">Electricity</SelectItem>
+                          <SelectItem value="sanitation">Sanitation</SelectItem>
+                          <SelectItem value="other">Other</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <div className="flex items-center gap-2">
+                        <Button 
+                          type="button" 
+                          variant="outline"
+                          size="sm"
+                        >
+                          <Camera className="mr-2 h-4 w-4" />
+                          Add Photo
+                        </Button>
+                        <Button 
+                          type="submit"
+                          disabled={isSubmitting}
+                        >
+                          {isSubmitting ? "Posting..." : "Post"}
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                </form>
+                
+                <div className="space-y-6">
+                  {communityPosts.map((post) => (
+                    <div key={post.id} className="rounded-lg border p-4 animate-fade-in">
+                      <div className="flex items-start gap-3">
+                        <img 
+                          src={post.avatar} 
+                          alt={post.author} 
+                          className="h-10 w-10 rounded-full object-cover"
+                        />
+                        <div className="flex-1">
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <h3 className="font-medium">{post.author}</h3>
+                              <p className="text-xs text-muted-foreground">{post.date}</p>
                             </div>
-                          </td>
-                          <td className="py-4">{service.totalRatings.toLocaleString()} ratings</td>
-                          <td className="py-4">
-                            <span className={`inline-flex items-center ${service.isImproved ? "text-green-500" : "text-red-500"}`}>
-                              {service.isImproved ? (
-                                <ThumbsUp className="mr-1 h-3 w-3" />
-                              ) : (
-                                <ThumbsDown className="mr-1 h-3 w-3" />
-                              )}
-                              {service.improvement}
+                            <span className="rounded-full bg-primary/10 px-2 py-1 text-xs font-medium text-primary">
+                              {post.category}
                             </span>
-                          </td>
-                          <td className="py-4">
-                            <Button variant="outline" size="sm">Rate Now</Button>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                          </div>
+                          <p className="mt-2 text-sm">{post.content}</p>
+                          <div className="mt-4 flex items-center gap-4">
+                            <button className="flex items-center gap-1 text-sm text-muted-foreground hover:text-primary">
+                              <ThumbsUp className="h-4 w-4" />
+                              <span>{post.likes}</span>
+                            </button>
+                            <button className="flex items-center gap-1 text-sm text-muted-foreground hover:text-primary">
+                              <MessageSquare className="h-4 w-4" />
+                              <span>{post.comments}</span>
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+              <CardFooter className="justify-center border-t p-4">
+                <Button variant="outline">Load More Posts</Button>
+              </CardFooter>
+            </Card>
+          </TabsContent>
+          
+          <TabsContent value="report" className="mt-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Report Community Issues</CardTitle>
+                <CardDescription>
+                  Help improve your community by reporting infrastructure issues, illegal activities, or service problems
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="mb-6 grid gap-6 md:grid-cols-3">
+                  <Card className="cursor-pointer transition-all hover:bg-secondary/50" onClick={() => setReportDialogOpen(true)}>
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-lg flex items-center gap-2">
+                        <Building className="h-5 w-5 text-primary" />
+                        Infrastructure Issues
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-sm text-muted-foreground">
+                        Report potholes, damaged roads, bridge issues, or other infrastructure problems
+                      </p>
+                    </CardContent>
+                  </Card>
+                  
+                  <Card className="cursor-pointer transition-all hover:bg-secondary/50" onClick={() => setReportDialogOpen(true)}>
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-lg flex items-center gap-2">
+                        <Trash2 className="h-5 w-5 text-primary" />
+                        Sanitation Problems
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-sm text-muted-foreground">
+                        Report garbage dumps, sewage issues, or water contamination problems
+                      </p>
+                    </CardContent>
+                  </Card>
+                  
+                  <Card className="cursor-pointer transition-all hover:bg-secondary/50" onClick={() => setReportDialogOpen(true)}>
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-lg flex items-center gap-2">
+                        <AlertTriangle className="h-5 w-5 text-primary" />
+                        Illegal Activities
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-sm text-muted-foreground">
+                        Report illegal construction, encroachment, or other prohibited activities
+                      </p>
+                    </CardContent>
+                  </Card>
                 </div>
                 
-                <div className="rounded-lg border p-6">
-                  <h3 className="mb-4 text-lg font-medium">Citizen Feedback Analysis</h3>
-                  <div className="space-y-6">
-                    <div className="grid gap-6 md:grid-cols-3">
-                      <Card>
-                        <CardHeader className="p-4 pb-2">
-                          <CardTitle className="text-base">Highest Rated</CardTitle>
-                        </CardHeader>
-                        <CardContent className="p-4 pt-0">
-                          <div className="text-lg font-medium">Electricity Department</div>
-                          <div className="flex items-center gap-2">
-                            {renderStars(4.1)}
-                            <span className="text-sm">4.1/5</span>
+                <div className="rounded-lg border">
+                  <div className="border-b p-4">
+                    <h3 className="font-medium">Your Reported Issues</h3>
+                  </div>
+                  <div className="p-4">
+                    {reportedIssues.length > 0 ? (
+                      <div className="space-y-4">
+                        {reportedIssues.map((issue) => (
+                          <div key={issue.id} className="rounded-lg border p-4 animate-fade-in">
+                            <div className="flex flex-col justify-between gap-3 md:flex-row md:items-center">
+                              <div>
+                                <div className="flex items-center gap-2">
+                                  <h4 className="font-medium">{issue.title}</h4>
+                                  {getStatusBadge(issue.status)}
+                                </div>
+                                <div className="mt-1 flex items-center gap-2 text-sm text-muted-foreground">
+                                  <MapPin className="h-3.5 w-3.5" />
+                                  <span>{issue.location}</span>
+                                  <span>•</span>
+                                  <span>{issue.date}</span>
+                                </div>
+                              </div>
+                              <Button 
+                                variant="outline" 
+                                size="sm"
+                              >
+                                Track Progress
+                              </Button>
+                            </div>
                           </div>
-                        </CardContent>
-                      </Card>
-                      
-                      <Card>
-                        <CardHeader className="p-4 pb-2">
-                          <CardTitle className="text-base">Needs Improvement</CardTitle>
-                        </CardHeader>
-                        <CardContent className="p-4 pt-0">
-                          <div className="text-lg font-medium">Road Transport Department</div>
-                          <div className="flex items-center gap-2">
-                            {renderStars(2.8)}
-                            <span className="text-sm">2.8/5</span>
-                          </div>
-                        </CardContent>
-                      </Card>
-                      
-                      <Card>
-                        <CardHeader className="p-4 pb-2">
-                          <CardTitle className="text-base">Most Improved</CardTitle>
-                        </CardHeader>
-                        <CardContent className="p-4 pt-0">
-                          <div className="text-lg font-medium">Electricity Department</div>
-                          <div className="text-sm text-green-500">+0.5 points in 3 months</div>
-                        </CardContent>
-                      </Card>
-                    </div>
-                    
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="flex flex-col items-center justify-center py-8 text-center">
+                        <FileText className="mb-2 h-10 w-10 text-muted-foreground" />
+                        <h3 className="text-lg font-medium">No reported issues yet</h3>
+                        <p className="text-sm text-muted-foreground">
+                          Help improve your community by reporting issues you notice
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+                
+                <div className="mt-6 rounded-lg bg-primary/5 p-6">
+                  <div className="flex items-start gap-4">
+                    <Lightbulb className="h-8 w-8 text-primary" />
                     <div>
-                      <h4 className="mb-2 font-medium">Key Insights from Feedback</h4>
-                      <ul className="space-y-2 text-sm">
-                        <li className="flex items-start gap-2">
-                          <div className="mt-0.5 h-2 w-2 rounded-full bg-blue-500"></div>
-                          <span>Water Supply Department has seen consistent improvement over the past 6 months due to new management protocols.</span>
+                      <h3 className="text-lg font-medium">Community Impact</h3>
+                      <p className="mt-2 text-muted-foreground">
+                        Your reports make a difference! In the past month, community reports have led to:
+                      </p>
+                      <ul className="mt-4 space-y-2">
+                        <li className="flex items-center gap-2">
+                          <CheckCircle className="h-5 w-5 text-green-600" />
+                          <span>42 potholes repaired across the city</span>
                         </li>
-                        <li className="flex items-start gap-2">
-                          <div className="mt-0.5 h-2 w-2 rounded-full bg-amber-500"></div>
-                          <span>Road Transport Department needs to focus on road maintenance and traffic management based on citizen feedback.</span>
+                        <li className="flex items-center gap-2">
+                          <CheckCircle className="h-5 w-5 text-green-600" />
+                          <span>18 illegal dumping sites cleaned</span>
                         </li>
-                        <li className="flex items-start gap-2">
-                          <div className="mt-0.5 h-2 w-2 rounded-full bg-green-500"></div>
-                          <span>Our AI analysis shows that departments with frequent community engagement score 1.2 points higher on average.</span>
+                        <li className="flex items-center gap-2">
+                          <CheckCircle className="h-5 w-5 text-green-600" />
+                          <span>35 streetlights fixed in residential areas</span>
                         </li>
                       </ul>
                     </div>
@@ -838,16 +445,192 @@ const CommunityEngagement = () => {
               </CardContent>
             </Card>
           </TabsContent>
+          
+          <TabsContent value="rate" className="mt-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Rate Government Services</CardTitle>
+                <CardDescription>
+                  Share your experience and help improve government services through your feedback
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="mb-6">
+                  <div className="relative">
+                    <Input placeholder="Search services..." />
+                  </div>
+                </div>
+                
+                <div className="space-y-4">
+                  {serviceRatings.map((service) => (
+                    <div key={service.id} className="rounded-lg border p-4 animate-fade-in">
+                      <div className="flex flex-col justify-between gap-3 md:flex-row md:items-center">
+                        <div>
+                          <h3 className="font-medium">{service.name}</h3>
+                          <p className="text-sm text-muted-foreground">{service.description}</p>
+                          <div className="mt-2 flex items-center gap-2">
+                            <StarRating rating={service.rating} />
+                            <span className="text-sm text-muted-foreground">
+                              ({service.totalRatings.toLocaleString()} ratings)
+                            </span>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            onClick={() => setFeedbackDialogOpen(true)}
+                          >
+                            <Star className="mr-2 h-4 w-4" />
+                            Rate Service
+                          </Button>
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                          >
+                            <BarChart className="mr-2 h-4 w-4" />
+                            View Ratings
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                
+                <div className="mt-6 rounded-lg bg-primary/5 p-6">
+                  <div className="text-center">
+                    <Users className="mx-auto mb-4 h-12 w-12 text-primary" />
+                    <h3 className="text-xl font-medium">Your Voice Matters</h3>
+                    <p className="mx-auto mt-2 max-w-2xl text-muted-foreground">
+                      Citizen feedback has directly led to service improvements across departments. Your ratings and reviews help identify areas that need attention and recognize excellent service.
+                    </p>
+                  </div>
+                  
+                  <div className="mt-6 grid gap-4 md:grid-cols-2">
+                    <div className="rounded-lg border bg-card p-4 text-center">
+                      <h4 className="text-2xl font-bold">12,356</h4>
+                      <p className="text-sm text-muted-foreground">Total citizen ratings submitted</p>
+                    </div>
+                    
+                    <div className="rounded-lg border bg-card p-4 text-center">
+                      <h4 className="text-2xl font-bold">87%</h4>
+                      <p className="text-sm text-muted-foreground">Of departments improved based on feedback</p>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
         </Tabs>
+        
+        {/* Report Issue Dialog */}
+        <Dialog open={reportDialogOpen} onOpenChange={setReportDialogOpen}>
+          <DialogContent className="sm:max-w-[600px]">
+            <DialogHeader>
+              <DialogTitle>Report an Issue</DialogTitle>
+              <DialogDescription>
+                Provide details about the issue you want to report
+              </DialogDescription>
+            </DialogHeader>
+            <div className="grid gap-4 py-4">
+              <div className="grid gap-2">
+                <label className="text-sm font-medium">Issue Type</label>
+                <Select defaultValue="infrastructure">
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select issue type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="infrastructure">Infrastructure Issue</SelectItem>
+                    <SelectItem value="sanitation">Sanitation Problem</SelectItem>
+                    <SelectItem value="illegal">Illegal Activity</SelectItem>
+                    <SelectItem value="other">Other</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="grid gap-2">
+                <label className="text-sm font-medium">Issue Title</label>
+                <Input placeholder="Provide a short, descriptive title" />
+              </div>
+              <div className="grid gap-2">
+                <label className="text-sm font-medium">Location</label>
+                <Input placeholder="Street address or landmark" />
+              </div>
+              <div className="grid gap-2">
+                <label className="text-sm font-medium">Description</label>
+                <Textarea 
+                  placeholder="Describe the issue in detail" 
+                  className="min-h-[100px]" 
+                />
+              </div>
+              <div className="grid gap-2">
+                <label className="text-sm font-medium">Upload Photo Evidence (Optional)</label>
+                <div className="flex items-center justify-center rounded-lg border border-dashed p-4">
+                  <Button variant="outline">
+                    <Upload className="mr-2 h-4 w-4" />
+                    Upload Photo
+                  </Button>
+                </div>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setReportDialogOpen(false)}>
+                Cancel
+              </Button>
+              <Button onClick={handleReportSubmit}>
+                Submit Report
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+        
+        {/* Rate Service Dialog */}
+        <Dialog open={feedbackDialogOpen} onOpenChange={setFeedbackDialogOpen}>
+          <DialogContent className="sm:max-w-[500px]">
+            <DialogHeader>
+              <DialogTitle>Rate Government Service</DialogTitle>
+              <DialogDescription>
+                Share your experience to help improve this service
+              </DialogDescription>
+            </DialogHeader>
+            <div className="grid gap-4 py-4">
+              <div className="flex flex-col items-center justify-center gap-2">
+                <h3 className="font-medium">How would you rate this service?</h3>
+                <div className="mt-2 flex items-center gap-1">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <button key={star} className="p-1">
+                      <Star className="h-8 w-8 text-muted-foreground hover:text-amber-400" />
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div className="grid gap-2">
+                <label className="text-sm font-medium">Your Experience</label>
+                <Textarea 
+                  placeholder="Tell us about your experience with this service" 
+                  className="min-h-[100px]" 
+                />
+              </div>
+              <div className="grid gap-2">
+                <label className="text-sm font-medium">Suggestions for Improvement (Optional)</label>
+                <Textarea 
+                  placeholder="How can this service be improved?" 
+                  className="min-h-[80px]" 
+                />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setFeedbackDialogOpen(false)}>
+                Cancel
+              </Button>
+              <Button onClick={handleFeedbackSubmit}>
+                Submit Feedback
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </Layout>
   );
 };
-
-const Label = ({ htmlFor, children }: { htmlFor: string, children: React.ReactNode }) => (
-  <label htmlFor={htmlFor} className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-    {children}
-  </label>
-);
 
 export default CommunityEngagement;

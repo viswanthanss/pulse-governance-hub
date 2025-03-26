@@ -40,7 +40,10 @@ import {
   FileText, 
   Shield, 
   UploadCloud,
-  PlusCircle
+  PlusCircle,
+  FileCheck,
+  Building,
+  Award
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -51,14 +54,16 @@ const existingDocuments = [
     title: "Aadhar Card",
     type: "Identity Proof",
     issuedDate: "15 Jun 2020",
-    verificationStatus: "verified" as const
+    verificationStatus: "verified" as const,
+    previewUrl: "https://images.unsplash.com/photo-1594408050220-606bcaa4f8a5?q=80&w=1000&auto=format&fit=crop"
   },
   {
     id: "doc2",
     title: "Land Records (7/12 Extract)",
     type: "Property Document",
     issuedDate: "03 Aug 2022",
-    verificationStatus: "verified" as const
+    verificationStatus: "verified" as const,
+    previewUrl: "https://images.unsplash.com/photo-1626178793926-22b28830aa30?q=80&w=1000&auto=format&fit=crop"
   },
   {
     id: "doc3",
@@ -80,6 +85,21 @@ const existingDocuments = [
     type: "Financial Document",
     issuedDate: "05 Apr 2023",
     verificationStatus: "pending" as const
+  },
+  {
+    id: "doc6",
+    title: "Caste Certificate",
+    type: "Identity Document",
+    issuedDate: "12 Jan 2022",
+    verificationStatus: "verified" as const
+  },
+  {
+    id: "doc7",
+    title: "MahaBhoomi Property Record",
+    type: "Property Document",
+    issuedDate: "18 Sep 2022",
+    verificationStatus: "verified" as const,
+    previewUrl: "https://images.unsplash.com/photo-1560520031-3a4dc4e9de0c?q=80&w=1000&auto=format&fit=crop"
   }
 ];
 
@@ -88,6 +108,8 @@ const Documents = () => {
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
   const [verificationDialogOpen, setVerificationDialogOpen] = useState(false);
   const [documentFilter, setDocumentFilter] = useState("all");
+  const [previewDocument, setPreviewDocument] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState("wallet");
   
   const filteredDocuments = existingDocuments.filter(document => {
     const matchesSearch = 
@@ -116,6 +138,15 @@ const Documents = () => {
     });
     setUploadDialogOpen(false);
   };
+
+  const openPreview = (docId: string) => {
+    const doc = existingDocuments.find(d => d.id === docId);
+    if (doc?.previewUrl) {
+      setPreviewDocument(doc.previewUrl);
+    } else {
+      toast.error("Preview not available for this document");
+    }
+  };
   
   return (
     <Layout>
@@ -127,7 +158,7 @@ const Documents = () => {
           </p>
         </div>
         
-        <Tabs defaultValue="wallet" className="w-full">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full max-w-md grid-cols-2">
             <TabsTrigger value="wallet">My Documents</TabsTrigger>
             <TabsTrigger value="verify">Verify Document</TabsTrigger>
@@ -169,6 +200,8 @@ const Documents = () => {
                               <SelectItem value="property">Property Document</SelectItem>
                               <SelectItem value="financial">Financial Document</SelectItem>
                               <SelectItem value="education">Educational Certificate</SelectItem>
+                              <SelectItem value="caste">Caste Certificate</SelectItem>
+                              <SelectItem value="land">Land Record</SelectItem>
                               <SelectItem value="other">Other</SelectItem>
                             </SelectContent>
                           </Select>
@@ -231,6 +264,8 @@ const Documents = () => {
                         <SelectItem value="identity">Identity Proofs</SelectItem>
                         <SelectItem value="property">Property Documents</SelectItem>
                         <SelectItem value="financial">Financial Documents</SelectItem>
+                        <SelectItem value="caste">Caste Certificates</SelectItem>
+                        <SelectItem value="land">Land Records</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -246,6 +281,8 @@ const Documents = () => {
                         type={document.type}
                         issuedDate={document.issuedDate}
                         verificationStatus={document.verificationStatus}
+                        previewUrl={document.previewUrl}
+                        onPreview={() => openPreview(document.id)}
                         className="animate-fade-in"
                       />
                     ))
@@ -274,13 +311,48 @@ const Documents = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent>
+                <div className="mb-8 grid gap-6 md:grid-cols-3">
+                  <Card className="border-primary/50">
+                    <CardHeader className="flex flex-row items-center gap-2 pb-2">
+                      <FileCheck className="h-5 w-5 text-primary" />
+                      <CardTitle className="text-lg">Identity Documents</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-sm text-muted-foreground">Verify identity documents like Aadhar, PAN, or Voter ID</p>
+                      <Button onClick={() => setVerificationDialogOpen(true)} className="mt-4 w-full">
+                        Verify Now
+                      </Button>
+                    </CardContent>
+                  </Card>
+                  
+                  <Card className="border-primary/50">
+                    <CardHeader className="flex flex-row items-center gap-2 pb-2">
+                      <Building className="h-5 w-5 text-primary" />
+                      <CardTitle className="text-lg">MahaBhoomi Records</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-sm text-muted-foreground">Authenticate land and property records from MahaBhoomi</p>
+                      <Button onClick={() => setVerificationDialogOpen(true)} className="mt-4 w-full">
+                        Verify Now
+                      </Button>
+                    </CardContent>
+                  </Card>
+                  
+                  <Card className="border-primary/50">
+                    <CardHeader className="flex flex-row items-center gap-2 pb-2">
+                      <Award className="h-5 w-5 text-primary" />
+                      <CardTitle className="text-lg">Certificates</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-sm text-muted-foreground">Verify caste, income, and educational certificates</p>
+                      <Button onClick={() => setVerificationDialogOpen(true)} className="mt-4 w-full">
+                        Verify Now
+                      </Button>
+                    </CardContent>
+                  </Card>
+                </div>
+                
                 <Dialog open={verificationDialogOpen} onOpenChange={setVerificationDialogOpen}>
-                  <DialogTrigger asChild>
-                    <Button className="w-full justify-center sm:w-auto">
-                      <Shield className="mr-2 h-4 w-4" />
-                      Start Verification Process
-                    </Button>
-                  </DialogTrigger>
                   <DialogContent className="sm:max-w-md">
                     <DialogHeader>
                       <DialogTitle>Document Verification</DialogTitle>
@@ -299,9 +371,10 @@ const Documents = () => {
                             <SelectItem value="aadhar">Aadhar Card</SelectItem>
                             <SelectItem value="pan">PAN Card</SelectItem>
                             <SelectItem value="voter">Voter ID</SelectItem>
-                            <SelectItem value="land">Land Records</SelectItem>
+                            <SelectItem value="land">Land Records (7/12)</SelectItem>
                             <SelectItem value="income">Income Certificate</SelectItem>
                             <SelectItem value="caste">Caste Certificate</SelectItem>
+                            <SelectItem value="property">Property Registration</SelectItem>
                             <SelectItem value="other">Other</SelectItem>
                           </SelectContent>
                         </Select>
@@ -391,6 +464,33 @@ const Documents = () => {
             </Card>
           </TabsContent>
         </Tabs>
+        
+        {/* Document Preview Dialog */}
+        <Dialog open={!!previewDocument} onOpenChange={() => setPreviewDocument(null)}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>Document Preview</DialogTitle>
+            </DialogHeader>
+            <div className="flex justify-center p-6">
+              {previewDocument ? (
+                <img 
+                  src={previewDocument} 
+                  alt="Document preview"
+                  className="max-h-[60vh] rounded-md object-contain"
+                />
+              ) : (
+                <div className="flex h-48 w-full items-center justify-center rounded-md border border-dashed">
+                  <p className="text-muted-foreground">Preview not available</p>
+                </div>
+              )}
+            </div>
+            <DialogFooter>
+              <Button variant="secondary" onClick={() => setPreviewDocument(null)}>
+                Close
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </Layout>
   );
